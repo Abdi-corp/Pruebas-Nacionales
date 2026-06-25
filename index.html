@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Examen Ciencias de la Naturaleza</title>
+    <style>
+        /* Reset y base */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #f2f4f8;
+            color: #1e293b;
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .wrap {
+            max-width: 780px;
+            margin: 0 auto;
+            padding: 20px 16px 40px;
+        }
+
+        /* Barra superior (sticky) */
+        .bar {
+            position: sticky;
+            top: 0;
+            background: #ffffff;
+            padding: 14px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e9edf4;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            z-index: 10;
+            backdrop-filter: blur(4px);
+            background: rgba(255, 255, 255, 0.92);
+        }
+
+        .timer {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1e293b;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .timer::before {
+            content: "⏱";
+            font-size: 20px;
+            font-weight: 400;
+        }
+
+        .timer.low {
+            color: #dc2626;
+        }
+
+        .progress {
+            font-size: 14px;
+            font-weight: 500;
+            color: #64748b;
+        }
+
+        /* Tarjeta de pregunta */
+        .card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 28px 24px;
+            margin-top: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            border: 1px solid #edf2f7;
+            transition: box-shadow 0.15s ease;
+        }
+
+        .qtext {
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 22px;
+            font-weight: 450;
+            white-space: pre-wrap;
+            color: #0f172a;
+        }
+
+        /* Opciones */
+        .opt {
+            display: block;
+            width: 100%;
+            text-align: left;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            color: #1e293b;
+            padding: 14px 18px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.15s ease;
+            font-weight: 450;
+            line-height: 1.4;
+        }
+
+        .opt:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+        }
+
+        .opt.selected {
+            border-color: #3b82f6;
+            background: #eff6ff;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
+
+        .opt.correct {
+            border-color: #22c55e;
+            background: #f0fdf4;
+        }
+
+        .opt.incorrect {
+            border-color: #ef4444;
+            background: #fef2f2;
+        }
+
+        /* Navegación */
+        .navrow {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 24px;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        button.nav {
+            background: #3b82f6;
+            color: #fff;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.1s ease;
+            letter-spacing: 0.3px;
+            flex: 1 1 auto;
+            min-width: 100px;
+        }
+
+        button.nav:hover:not(:disabled) {
+            background: #2563eb;
+        }
+
+        button.nav:active:not(:disabled) {
+            transform: scale(0.97);
+        }
+
+        button.nav:disabled {
+            opacity: 0.4;
+            cursor: default;
+            background: #94a3b8;
+        }
+
+        button.secondary {
+            background: #e9edf4;
+            color: #1e293b;
+        }
+
+        button.secondary:hover:not(:disabled) {
+            background: #dce2ec;
+        }
+
+        /* Índice de preguntas */
+        .qindex {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .qindex span {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: 8px;
+            background: #f1f5f9;
+            color: #475569;
+            cursor: pointer;
+            transition: background 0.15s ease, color 0.15s ease;
+            border: 1px solid transparent;
+        }
+
+        .qindex span:hover {
+            background: #e2e8f0;
+        }
+
+        .qindex span.answered {
+            background: #3b82f6;
+            color: #fff;
+            border-color: #3b82f6;
+        }
+
+        .qindex span.answered:hover {
+            background: #2563eb;
+        }
+
+        /* Pantalla de inicio */
+        .start {
+            text-align: center;
+            padding: 60px 20px 40px;
+        }
+
+        .start h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #0f172a;
+        }
+
+        .start .subtitle {
+            font-size: 18px;
+            font-weight: 400;
+            color: #475569;
+            margin-bottom: 28px;
+        }
+
+        .start p {
+            color: #64748b;
+            font-size: 16px;
+            margin: 8px 0;
+        }
+
+        .bigbtn {
+            background: #3b82f6;
+            color: #fff;
+            border: none;
+            padding: 16px 40px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.1s ease;
+            margin-top: 28px;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .bigbtn:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.25);
+        }
+
+        .bigbtn:active {
+            transform: scale(0.97);
+        }
+
+        /* Resultados */
+        .score {
+            text-align: center;
+            padding: 40px 20px 30px;
+            background: #fff;
+            border-radius: 20px;
+            border: 1px solid #edf2f7;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            margin-top: 20px;
+        }
+
+        .score .num {
+            font-size: 64px;
+            font-weight: 700;
+            color: #0f172a;
+            line-height: 1.1;
+        }
+
+        .score .sub {
+            color: #64748b;
+            font-size: 16px;
+            margin-top: 8px;
+        }
+
+        .score .bigbtn {
+            margin-top: 24px;
+        }
+
+        /* Revisión de incorrectas */
+        .reviewItem {
+            margin-top: 20px;
+            background: #fff;
+            border-radius: 16px;
+            padding: 20px 22px;
+            border: 1px solid #edf2f7;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.02);
+        }
+
+        .reviewItem .qtext {
+            font-size: 16px;
+            margin-bottom: 14px;
+        }
+
+        .reviewItem .tag {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            margin-bottom: 10px;
+        }
+
+        .tag.ok {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .tag.bad {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .reviewItem .opt {
+            cursor: default;
+            padding: 12px 16px;
+            font-size: 15px;
+        }
+
+        .reviewItem .opt:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .bar {
+                padding: 12px 16px;
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+
+            .timer {
+                font-size: 17px;
+            }
+
+            .progress {
+                font-size: 13px;
+            }
+
+            .card {
+                padding: 20px 16px;
+                border-radius: 14px;
+            }
+
+            .qtext {
+                font-size: 16px;
+            }
+
+            .opt {
+                font-size: 15px;
+                padding: 12px 14px;
+            }
+
+            .navrow {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            button.nav {
+                width: 100%;
+                flex: unset;
+                padding: 14px;
+                font-size: 15px;
+            }
+
+            .qindex span {
+                width: 30px;
+                height: 30px;
+                font-size: 12px;
+            }
+
+            .start h1 {
+                font-size: 24px;
+            }
+
+            .start .subtitle {
+                font-size: 16px;
+            }
+
+            .score .num {
+                font-size: 48px;
+            }
+
+            .reviewItem {
+                padding: 16px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .wrap {
+                padding: 12px 10px 30px;
+            }
+
+            .card {
+                padding: 16px 12px;
+            }
+
+            .qtext {
+                font-size: 15px;
+            }
+
+            .opt {
+                font-size: 14px;
+                padding: 10px 12px;
+            }
+
+            .qindex span {
+                width: 28px;
+                height: 28px;
+                font-size: 11px;
+            }
+        }
+
+        /* Utilidades */
+        .hidden {
+            display: none;
+        }
+
+        .mt-4 {
+            margin-top: 24px;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        /* Mejora de accesibilidad */
+        button {
+            font-family: inherit;
+        }
+
+        /* Scroll suave */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap" id="app"></div>
+
+    <script>
+        // ---------- DATOS DEL BANCO DE PREGUNTAS ----------
+        const BANK = [
+            { q: "La primera parte del proceso de digestión se produce en la boca. Allí, los dientes y muelas trituran los alimentos, mientras que las enzimas de la saliva ayudan a desintegrar los alimentos en sustancias más simples. La reacción general que describe este proceso es: Almidón + Amilasa -> Maltosa. De acuerdo con la reacción anterior, ¿qué función cumple la amilasa en dicha reacción?", o: { A: "La amilasa es un producto de la reacción de los carbohidratos complejos como los almidones.", B: "La amilasa es producida por los factores mecánicos de los dientes y las muelas.", C: "La amilasa acelera las reacciones químicas y facilita la degradación de sustancias complejas.", D: "La amilasa actúa sobre los carbohidratos simples para formar carbohidratos complejos." }, a: "C" },
+            { q: "Una gráfica muestra cómo se comporta el volumen de un gas a distintas presiones: al aumentar la presión, el volumen disminuye proporcionalmente. ¿Qué relación existe entre la presión y el volumen del gas?", o: { A: "Son directamente proporcionales.", B: "Son inversamente proporcionales.", C: "Existe una relación de variación lineal.", D: "Existe una proporcionalidad directa con el cuadrado." }, a: "B" },
+            { q: "En una ciudad el Ministerio de Salud hace las siguientes recomendaciones: 1. Aumentar las medidas de higiene. 2. Vacunar las personas envejecientes. 3. Evitar aglomeramiento de personas. 4. Usar mascarillas en áreas públicas. 5. Vacunar el personal que trabaja en los hospitales. Con las recomendaciones anteriores, ¿qué problemática busca evitar el Ministerio de Salud?", o: { A: "Que las personas envejecientes estén sanas.", B: "Que los médicos tengan menos pacientes.", C: "Que se propague una enfermedad viral.", D: "Que las personas se ensucien las manos." }, a: "C" },
+            { q: "Un científico necesita estudiar el cáncer de piel asociado a la exposición a la luz solar. Para esto, utiliza en su laboratorio una lámpara que emite cierto tipo de luz, la cual se sabe que es ionizante. ¿Qué tipo de lámpara usa el científico?", o: { A: "Lámpara de luz infrarroja.", B: "Lámpara de luz verde.", C: "Lámpara de luz azul.", D: "Lámpara de luz ultravioleta." }, a: "D" },
+            { q: "En un laboratorio se hace la reacción J+K -> L+G a temperatura ambiente. Posteriormente, se realiza la misma reacción con un aumento en la temperatura y se observa que esta afecta la velocidad de la reacción. ¿Por qué ocurre esto?", o: { A: "Porque aumenta el movimiento de las partículas.", B: "Porque las partículas están finamente divididas.", C: "Porque hay gran cantidad de los reactivos J y K.", D: "Porque disminuye la cantidad de productos L y G." }, a: "A" },
+            { q: "Un estudiante colocó un vaso con agua sobre un mechero hasta que alcanzó la temperatura de ebullición. Al ocurrir esto, observó que desde el fondo del vaso se formaban burbujas. ¿Qué relación tienen las burbujas con el fenómeno?", o: { A: "Las burbujas corresponden al agua en estado gaseoso que se libera durante la ebullición.", B: "Las burbujas son el aire que contiene el agua y que se desprenden por efecto del calor.", C: "Las burbujas son átomos de oxígeno liberados por el calor durante la ebullición.", D: "Las burbujas son bolitas de calor que expulsa el agua para mantenerse fría." }, a: "A" },
+            { q: "Se espera aumentar el rendimiento de una cosecha de pitahaya, para lo cual se determinó la cantidad de nitrógeno necesario según el contenido de fósforo en suelo. Los resultados de 5 ensayos muestran que a mayor fósforo, mayor nitrógeno. ¿Qué relación se presenta entre las concentraciones de fósforo y nitrógeno?", o: { A: "Cuando aumenta el fósforo, aumenta también el nitrógeno.", B: "Los cambios en el fósforo no afectan al nitrógeno.", C: "Cuando disminuye el fósforo, aumenta el nitrógeno.", D: "El fósforo y el nitrógeno se mantienen constantes." }, a: "A" },
+            { q: "Un estudiante mide la presión de una muestra de nitrógeno gaseoso a medida que varía la temperatura, manteniendo constante el volumen y la masa del gas. ¿Cuál es la pregunta de investigación que desea responder?", o: { A: "¿Qué relación hay entre la temperatura y el volumen del nitrógeno gaseoso?", B: "¿Qué relación hay entre la presión y el volumen del nitrógeno gaseoso?", C: "¿Qué relación hay entre la temperatura y la presión del nitrógeno gaseoso?", D: "¿Qué relación hay entre la presión y la masa del nitrógeno gaseoso?" }, a: "C" },
+            { q: "En una práctica de laboratorio un estudiante derramó ácido clorhídrico concentrado sobre la mesa de trabajo. El estudiante usa una solución de bicarbonato de sodio, una sustancia básica, para neutralizar el ácido derramado. ¿Es correcto utilizarlo para neutralizar el efecto del ácido?", o: { A: "Sí, porque el bicarbonato es ácido y un ácido neutraliza otro ácido.", B: "Sí, porque el bicarbonato es una sustancia básica y lo neutraliza.", C: "No, porque el bicarbonato es una sustancia básica y no lo neutraliza.", D: "No, porque el bicarbonato es un ácido y empeoraría la situación." }, a: "B" },
+            { q: "Camila lee que la energía potencial depende de la masa y de la gravedad, y que aumenta de manera directa con la altura. Un saco de arroz de 10 kg se observa en tres momentos: momento 1 (más bajo), momento 2 (altura media) y momento 3 (más alto). ¿Cuál es el orden correcto, de mayor a menor energía potencial?", o: { A: "Momento 3, momento 2 y momento 1.", B: "Momento 2, momento 3 y momento 1.", C: "Momento 1, momento 2 y momento 3.", D: "Momento 1, momento 3 y momento 2." }, a: "A" },
+            { q: "La velocidad del sonido en el aire a 0°C es de 331.0 m/s, y por cada grado que aumenta la temperatura, la velocidad se incrementa en 0.6 m/s, para temperaturas entre 0°C y 3°C. Una tabla muestra: Temperatura 0,1,2,3 °C y Velocidad 331.0, 331.6, 332.2, 332.8 m/s. ¿Esta tabla representa correctamente la descripción?", o: { A: "Sí, los valores corresponden exactamente al incremento descrito.", B: "No, los valores de velocidad deberían disminuir con la temperatura.", C: "No, la temperatura debería estar en m/s y la velocidad en °C.", D: "No, el incremento debería ser de 1.0 m/s por grado." }, a: "A" },
+            { q: "Alejandra lee que al mover un imán en el interior de una bobina se genera una corriente eléctrica, medible con un detector de corriente. Ella se pregunta si la corriente depende del polo del imán que entre primero a la bobina, y diseña un experimento usando siempre el mismo polo. ¿Es posible responder su pregunta con ese diseño?", o: { A: "No, porque debe repetirse el experimento usando una pila.", B: "No, porque debe repetirse el experimento usando un imán más potente.", C: "Sí, porque se repite el experimento dejando el imán inmóvil en la bobina.", D: "No es posible con ese diseño; se necesita repetir el experimento invirtiendo los polos del imán." }, a: "D" },
+            { q: "En la lucha contra el cambio climático existen medidas de mitigación (reducir emisiones de gases de efecto invernadero) y de adaptación (reducir vulnerabilidad ante los efectos). Se presentan diez acciones numeradas: 1. Uso de energías renovables, 2. Reforestación, 3. Construcción de diques, 4. Cambio de cultivos, 5. Reducción de consumo de carne, 6. Uso de transporte público, 7. Construcción de viviendas elevadas, 8. Sistemas de riego eficientes, 9. Energía solar, 10. Protección de costas. Identifique tres acciones que contribuyen a MITIGAR el cambio climático.", o: { A: "3, 7 y 8", B: "1, 6 y 9", C: "2, 4 y 5", D: "5, 7 y 10" }, a: "B" },
+            { q: "Las vías vehiculares de una ciudad se deterioran con facilidad y se considera que esto se debe a la utilización de materiales de mala calidad para su construcción. ¿La anterior hipótesis se puede abordar desde las ciencias de la naturaleza?", o: { A: "No, porque la hipótesis planteada afecta exclusivamente la economía de la ciudad y los recursos destinados a la construcción de vías.", B: "Sí, porque las características de los materiales es un objeto de estudio de las ciencias y, con ello, se puede verificar la calidad de los mismos.", C: "No, porque la hipótesis planteada solo afecta la calidad de vida de los habitantes de la ciudad que emplean vehículos para desplazarse.", D: "Sí, porque es un problema ético, donde los contratistas que construyen las vías emplean materiales de costos inferiores a los ofrecidos." }, a: "B" },
+            { q: "Un péndulo simple es un sistema formado por una masa que cuelga de un hilo, de tal manera que puede oscilar. El tiempo que tarda en hacer una oscilación completa se llama 'período'. El profesor de Física pide verificar si el período y la masa de un péndulo están relacionados. ¿Cuál descripción experimental es adecuada?", o: { A: "Medir el período variando la masa y dejando la longitud constante.", B: "Medir el período variando la longitud y dejando la masa constante.", C: "Medir el período en distintos lugares, dejando la masa constante.", D: "Medir el período en distintos lugares, dejando la longitud constante." }, a: "A" },
+            { q: "La provincia de La Altagracia ha experimentado un auge en las actividades de extracción minera, provocando degradación del suelo. Para restaurarlo, una empresa minera introdujo plantas de casuarina (originarias de Australia) en los suelos degradados, pero el Ministerio de Medio Ambiente indicó que no es una solución factible. ¿Por qué no se recomienda la casuarina?", o: { A: "Porque se caen con facilidad cuando hay ciclones.", B: "Porque son invasoras y destruyen el hábitat natural de la zona.", C: "Porque solo son buenas para ornamento y sombra.", D: "Porque solo sirven para producir madera y alimento para el ganado." }, a: "B" },
+            { q: "Un biólogo marino realiza un experimento sumergiéndose varias veces en el océano y obtiene los siguientes datos: a 5 m de profundidad, 61,250 Pa y 28°C; a 10 m, 122,500 Pa y 26°C; a 15 m, 183,750 Pa y 24°C; a 20 m, 245,000 Pa y 22°C; a 25 m, 306,250 Pa y 20°C. ¿Qué conclusión puede obtener el biólogo?", o: { A: "La temperatura del agua aumenta a medida que aumenta la profundidad.", B: "La temperatura del agua disminuye a medida que disminuye la presión.", C: "La presión aumenta a medida que aumenta la profundidad.", D: "La presión aumenta a medida que aumenta la temperatura del agua." }, a: "C" },
+            { q: "Los elementos de transición tienen algunas características en común. Para los elementos Ni, Pt, Ag, Cu, Au y Sn, ¿cuál de las siguientes es una característica común?", o: { A: "Son baratos y abundantes.", B: "Son malos conductores de calor y electricidad.", C: "Son tóxicos y alergénicos.", D: "Son utilizados en la fabricación de joyas y bisuterías." }, a: "D" },
+            { q: "Un estudiante mide la temperatura de una taza de agua cada 2 minutos mientras la calienta con una estufa que suministra calor de forma constante. Anota: 15°C, 20°C, 25°C, 30°C, 35°C y 40°C durante los primeros 10 minutos. ¿Cuál tabla representa correctamente estos datos (Tiempo en min / Temperatura en °C)?", o: { A: "0, 2, 4, 6, 8, 10 / 15, 20, 25, 30, 35, 40", B: "1, 2, 3, 4, 5, 6 / 40, 35, 30, 25, 20, 15", C: "2, 4, 6, 8, 10, 12 / 0, 15, 20, 25, 30, 35", D: "0, 1, 2, 3, 4, 5 / 15, 25, 35, 45, 55, 65" }, a: "A" },
+            { q: "En un ecosistema se presenta una red alimenticia donde los ratones son consumidos por consumidores secundarios y a su vez consumen productores. ¿Qué pasa si, debido a una inundación, la población de ratones se extingue?", o: { A: "Los productores y consumidores secundarios no se ven afectados, y el flujo de materia y energía sigue igual.", B: "Los productores y consumidores terciarios no se ven afectados, y el flujo de materia y energía sigue igual.", C: "Los productores aumentan al igual que los consumidores secundarios, afectando el flujo de materia y energía.", D: "Los productores aumentan y los consumidores secundarios se reducen, afectando el flujo de materia y energía." }, a: "D" },
+            { q: "Una profesora de química muestra una lista de sustancias con su pH y estado: dióxido de carbono (6.5, gaseoso), leche (7.0, líquido), granos de arroz (6.7, sólido), propano (6.5, gaseoso), jugo de limón (3.0, líquido), sal en grano (7.0, sólido). Luego las clasifica en tres grupos: Grupo 1 (leche, jugo de limón), Grupo 2 (sal en grano, granos de arroz), Grupo 3 (dióxido de carbono, propano). ¿Qué criterio de clasificación usó la profesora?", o: { A: "Que tengan pH de 6.5", B: "Que tengan el mismo color.", C: "Que tengan pH por debajo de 6", D: "Que tengan el mismo estado." }, a: "D" },
+            { q: "En un laboratorio un grupo de estudiantes mezcló almidón, frutas, agua y levaduras y la dejó reposar durante varias horas. Durante ese tiempo la levadura transformó el almidón y los azúcares en dióxido de carbono y alcohol. ¿Qué nombre recibe este cambio?", o: { A: "La fermentación.", B: "La combinación.", C: "La putrefacción.", D: "La descomposición." }, a: "A" },
+            { q: "Se compara un carro que se mueve con velocidad constante con una maleta en reposo sobre el suelo, cada una con su diagrama de fuerzas aplicadas. Teniendo en cuenta la fuerza resultante en los ejes X y Y de cada sistema, ¿qué tienen en común las dos situaciones?", o: { A: "Que se aplican las mismas cuatro fuerzas en las dos situaciones.", B: "Que el peso es igual en las dos situaciones.", C: "Que el carro y la maleta tienen la misma velocidad en las dos situaciones.", D: "Que la sumatoria de fuerzas es cero en las dos situaciones." }, a: "D" },
+            { q: "Dos grupos de estudiantes determinan la cantidad de agua en tres frutas diferentes. El Grupo 1 mide una sola porción de cada fruta. El Grupo 2 mide varias porciones de cada fruta y promedia los resultados. ¿Cuál experimento es más adecuado?", o: { A: "El del grupo 1, porque permite cumplir con el objetivo sin la influencia de datos innecesarios para el experimento.", B: "El del grupo 2, porque, al hacer más mediciones en diferentes porciones de fruta, se reduce el error del experimento.", C: "Ambos son adecuados, porque encuentran el contenido de agua, sin importar que en el de un grupo se repita la medida.", D: "Ninguno es adecuado, porque la medida del peso siempre va a variar, sin importar la cantidad de medidas que se tomen." }, a: "B" },
+            { q: "La ley de Hooke describe cómo la distancia que se estira un resorte depende directamente de la fuerza aplicada sobre él. Se observan tres resortes diferentes, cada uno con el mismo peso suspendido, pero se estiran longitudes distintas. ¿Cuál es la causa de que la longitud estirada sea diferente, si el peso es el mismo?", o: { A: "El peso, porque no afecta la distancia que se estira el resorte.", B: "La masa, porque en cada uno de los cuerpos es diferente.", C: "La constante elástica, porque es igual en cada resorte.", D: "La constante elástica, porque es diferente en cada resorte." }, a: "D" },
+            { q: "Un ciclón consiste en vientos extremadamente fuertes producidos por una depresión atmosférica que avanza girando sobre sí misma, originándose en zonas tropicales. Categoría 1: 120-153 km/h (daños mínimos); Categoría 2: 154-177 km/h (daños moderados); Categoría 3: 178-209 km/h (daños importantes); Categoría 4: 210-249 km/h (daños muy importantes); Categoría 5: más de 250 km/h (catastróficas). El ciclón George azotó el país en 1998 con vientos de entre 179-209 km/h. ¿Cuál fue su categoría?", o: { A: "Categoría 2.", B: "Categoría 4.", C: "Categoría 1.", D: "Categoría 3." }, a: "D" },
+            { q: "Un informe de laboratorio tiene como objetivo identificar experimentalmente las diferencias estructurales entre células eucariotas y procariotas. El texto dice: 'La célula es la unidad básica de vida, la cual presenta gran diversidad de formas y tamaños. En ella ocurren todas las funciones vitales de los seres vivos...'. ¿En qué parte del informe se debe colocar esta información?", o: { A: "En las conclusiones.", B: "En los resultados.", C: "En el procedimiento.", D: "En la introducción." }, a: "D" },
+            { q: "Un circuito eléctrico está compuesto por un interruptor, un bombillo, un ventilador y una batería. La energía eléctrica generada por la batería circula por todo el circuito, permitiendo que el bombillo encienda y que el ventilador se mueva. ¿Cuál elemento convierte la energía eléctrica en energía cinética?", o: { A: "El ventilador.", B: "La batería.", C: "El interruptor.", D: "El bombillo." }, a: "A" },
+            { q: "Un estudiante diseña un carro de juguete para competir en una carrera. Al probarlo, observa que tiene buen control en la pista, pero no alcanza mucha rapidez. Para aumentar la rapidez, decide ponerle un motor más potente. ¿Es esta solución adecuada?", o: { A: "Sí, porque un motor más potente le dará más control en la pista.", B: "Sí, porque un motor más potente le permitirá correr más rápido.", C: "No, porque un motor más potente no le dará más control en la pista.", D: "No, porque un motor más potente no le permitirá correr más rápido." }, a: "B" },
+            { q: "En una zona boscosa con aguas subterráneas hay árboles de raíces profundas y arbustos de raíces superficiales. Suele haber gran cantidad de lluvias, pero un evento climático ha disminuido considerablemente su cantidad. ¿Qué ocurrirá con los árboles y arbustos de la zona?", o: { A: "Aumentará la cantidad de árboles por la falta de agua, y disminuirá la cantidad de arbustos por su tipo de raíces.", B: "Disminuirá la cantidad de árboles por falta de agua, y la cantidad de arbustos se mantendrá igual por las aguas subterráneas.", C: "Aumentará la cantidad de arbustos por la disminución de agua, y disminuirá la cantidad de árboles por sus largas raíces.", D: "Disminuirá la cantidad de arbustos por falta de agua, y la cantidad de árboles se mantendrá igual por las aguas subterráneas." }, a: "D" },
+            { q: "Un agricultor cruza rosas puras rojas con rosas puras blancas y obtiene solo rosas rojas. Luego cruza entre sí las rosas rojas obtenidas y, para su sorpresa, aparecen rosas blancas nuevamente. ¿Por qué se obtuvieron rosas rojas y blancas después del segundo cruce?", o: { A: "Porque las rosas blancas se cruzaron por error en el segundo cruce del agricultor.", B: "Porque las rosas blancas se producen solo bajo condiciones ambientales específicas.", C: "Porque las rosas rojas del segundo cruce tienen genes para color rojo y blanco.", D: "Porque las rosas de color blanco se pueden originar de cualquier otra rosa." }, a: "C" },
+            { q: "En un laboratorio se quiere comprobar la descomposición simple que produce la efervescencia en los refrescos, representada por H2CO3 -> H2O + CO2. Se realizan experimentos a varias temperaturas para determinar en cuál se obtiene mayor cantidad de CO2. ¿Por qué esta investigación se considera desde las ciencias de la naturaleza?", o: { A: "Porque el análisis de la temperatura determina la cantidad de CO2 en el envase.", B: "Porque al tener refrescos fríos aumenta el comercio y venta del producto.", C: "Porque pueden obtener una publicidad más atractiva.", D: "Porque pueden utilizar el CO2 para otras bebidas frías." }, a: "A" },
+            { q: "Una estudiante va a construir un filtro de agua casero, con la hipótesis de que los materiales deben ir desde los más grandes en la parte superior hasta los más pequeños en la parte inferior. Cuenta con: algodón, carbón pulverizado, arena, grava y piedras. ¿Cuál debe ser la organización de los materiales de arriba hacia abajo?", o: { A: "Algodón, carbón pulverizado, arena, grava y piedras.", B: "Piedras, grava, arena, carbón pulverizado y algodón.", C: "Carbón pulverizado, algodón, arena, grava y piedras.", D: "Carbón pulverizado, arena, grava, piedras y algodón." }, a: "B" },
+            { q: "Un ecosistema desértico con ratones claros y oscuros sufre la erupción de un volcán; con el tiempo, la lava se seca y el ambiente cambia a roca volcánica oscura. Durante 20 años de estudio, los datos muestran que los ratones oscuros aumentan mientras los claros disminuyen. ¿Qué consecuencias trajo el cambio en el ambiente a las dos poblaciones?", o: { A: "Provocó un aumento en el número de ratones claros y oscuros por igual.", B: "Provocó un aumento en el número de ratones claros y una disminución en el número de ratones oscuros.", C: "Provocó una disminución en el número de ratones claros y un aumento en el número de ratones oscuros.", D: "Provocó una disminución en el número de ratones claros y oscuros por igual." }, a: "C" },
+            { q: "Las vías férreas por donde transitan los trenes se colocan dejando pequeños espacios entre riel y riel. ¿Qué puede ocurrir si se eliminan esos pequeños espacios entre riel y riel?", o: { A: "Los rieles se expandirán hasta frenar el tren.", B: "Los rieles se calentarán y el tren aumentará su velocidad.", C: "Los rieles se expandirán y aumentarán las vibraciones del tren.", D: "Los rieles y las ruedas se calentarán y el tren se detendrá." }, a: "C" },
+            { q: "Juan construyó un diagrama de las fuerzas que actúan sobre una caja que se desliza sobre una superficie con fricción. En el diagrama aparecen el peso, la fuerza aplicada y la fricción, pero falta nombrar una fuerza más. ¿Cuál es la fuerza que falta por nombrar?", o: { A: "La tensión que ejerce la cuerda.", B: "La rotación que ejerce la Tierra.", C: "La normal que ejerce el piso.", D: "La presión que ejerce la atmósfera." }, a: "C" },
+            { q: "Los habitantes de un pueblo pequeño quieren construir un puente sobre un río para aumentar la actividad económica, por lo que desean saber si el puente será rentable o no. ¿Puede responderse a esta pregunta desde las ciencias de la naturaleza?", o: { A: "Sí, porque el costo de construcción corresponde al campo de aplicación de las ciencias de la naturaleza.", B: "No, porque el costo de construcción NO corresponde al campo de aplicación de las ciencias de la naturaleza.", C: "Sí, porque las ciencias de la naturaleza estudian el impacto económico de la actividad humana.", D: "No, porque las ciencias de la naturaleza no tienen nada que ver con la ingeniería civil." }, a: "B" },
+            { q: "Una gráfica muestra la tasa de mortalidad para fumadores y no fumadores por cada 100 habitantes de una ciudad, evidenciando una mortalidad mucho mayor por cáncer de pulmón en fumadores. ¿Cuál pregunta de investigación es coherente con este resultado?", o: { A: "¿Cuál es la incidencia del cigarrillo en la muerte por cáncer de pulmón por cada 100 habitantes?", B: "¿Cuál es el riesgo de muerte por cáncer de pulmón en personas blancas y negras?", C: "¿Cuántas personas fuman grandes cantidades de cigarrillos?", D: "¿Cuál es la proporción de fumadores entre personas blancas y negras por cada 100 habitantes?" }, a: "A" },
+            { q: "En una investigación se quería conocer toda la diversidad de plantas de una región, colectando especies semanalmente. Los resultados muestran una curva que crece rápido al inicio y luego se estabiliza en las últimas semanas. ¿Cuál es la tendencia que siguen los resultados?", o: { A: "Los resultados siguen una tendencia lineal, es decir que, a más semanas de colecta, se obtendrá una mayor diversidad de especies de plantas.", B: "Los resultados se estabilizan al final, lo que indica que, en las últimas semanas de colecta, se logra conocer toda la diversidad de plantas.", C: "La tendencia indica que, entre las semanas 6 y 7, se recogen la mitad de las especies nuevas en el sitio de estudio.", D: "La tendencia indica una relación exponencial puesto que, en las últimas 2 semanas, se colectan más especies nuevas que en las 5 primeras semanas." }, a: "B" },
+            { q: "Uno de los amortiguadores de un carro se dañó y se decide reemplazarlo por otro de igual longitud y material, pero un poco más delgado. ¿El amortiguador de reemplazo permitirá el correcto balance del carro?", o: { A: "Sí, porque el amortiguador al ser del mismo material se comporta igual que el original.", B: "Sí, porque el carro tiene sus cuatro amortiguadores y no interesan sus características.", C: "No, porque al ser más delgado no genera la misma fuerza que los demás amortiguadores.", D: "No, porque al tener la misma longitud genera una fuerza mayor que los demás amortiguadores." }, a: "C" },
+            { q: "Mercedes enciende la mecha de una vela en la sala de su casa, pero entra mucha brisa y se apaga. La vuelve a encender y le coloca un frasco de cristal transparente con fondo para protegerla de la brisa, pero al no tener acceso a oxígeno, la vela se apaga otra vez. Entonces, coloca la vela dentro de un frasco sin fondo y esta vez permanece encendida. ¿Qué factores son determinantes para que la vela permanezca encendida?", o: { A: "Solo el lugar de la casa donde fue encendida la vela.", B: "Solo la persona que enciende la vela.", C: "La protección de la brisa y el acceso al oxígeno.", D: "El color y el tamaño del frasco." }, a: "C" },
+            { q: "Una playa de un país extranjero es visitada con mucha frecuencia por turistas. Alrededor de ella, los inversionistas están construyendo edificaciones grandes y ha aumentado el número de hoteles, restaurantes y casetas, sin reglamentaciones claras del gobierno. Los habitantes de la playa se han visto obligados a abandonar el lugar y buscar uno más limpio para vivir. ¿Qué pregunta puede plantearse desde las ciencias de la naturaleza?", o: { A: "¿Los inversionistas ven un negocio muy enriquecedor en el sector turístico en la playa?", B: "¿La presencia de turistas y el comercio sin control se relacionan con la contaminación en la playa?", C: "¿Al gobierno le cuesta reglamentar leyes para el ingreso de turistas a la playa?", D: "¿El desplazamiento de los habitantes muestra la desigualdad social en la playa?" }, a: "B" },
+            { q: "Felicia desea saber si el aumento de la masa corporal de los ratones depende del consumo de grasas o de azúcares en su dieta. Aísla dos grupos de ratones en condiciones óptimas: uno alimentado con dieta rica en grasas y otro con dieta rica en azúcares. Al cabo de un tiempo, ambos grupos aumentaron su masa corporal. ¿Son válidos estos resultados para comprobar su hipótesis?", o: { A: "No, porque le faltó alimentar un tercer grupo con una dieta sin grasas y sin azúcares.", B: "No, porque le dio más comida al grupo alimentado con la dieta rica en azúcares.", C: "Sí, porque alimentó a un grupo con comidas ricas en grasas y a otro con azúcares.", D: "Sí, porque le dio más comida al grupo alimentado con la dieta rica en grasas." }, a: "A" },
+            { q: "En una región donde predominaban las lagartijas, su población ha disminuido. Al parecer, la disminución de la humedad ambiental por el cambio climático las deshidrata con facilidad, ya que su piel es muy delgada; además los habitantes las cazan por costumbres. Se propone una investigación para comprobar que las lagartijas son sensibles a la disminución de la humedad. ¿Por qué esta hipótesis puede abordarse desde las ciencias de la naturaleza?", o: { A: "Porque se pueden evaluar los factores económicos asociados a la comercialización de las lagartijas.", B: "Porque a través de un diseño experimental se puede evaluar el efecto del cambio de humedad sobre las lagartijas.", C: "Porque permite analizar las costumbres sociales respecto a la cacería de las lagartijas.", D: "Porque permite establecer cuáles son las principales recetas a base de lagartijas que preparan los habitantes de la región." }, a: "B" },
+            { q: "En el colegio de Juana se han implementado las siguientes acciones: colocar ventanas amplias que permitan la circulación del aire, instalar tejas que aíslen térmicamente los salones, poner ventiladores y colocar vidrios polarizados en las ventanas. ¿Qué problema se quiere solucionar con estas acciones?", o: { A: "La mala distribución de estudiantes en los salones de clases.", B: "La incidencia de altas temperaturas en los salones de clases.", C: "La contaminación auditiva en el desarrollo de las clases.", D: "La oscuridad y el poco espacio en los salones de clases." }, a: "B" },
+            { q: "Un grupo de estudiantes mide la velocidad de una reacción y descubre que, en la mayoría de las reacciones, la velocidad depende directamente de la concentración de los reactivos. ¿Cuál de las siguientes afirmaciones es correcta?", o: { A: "Si la concentración de los reactivos es mayor, la reacción es más rápida.", B: "Si la concentración de los reactivos es menor, la reacción es más rápida.", C: "Si la concentración de los reactivos es menor, la velocidad aumenta.", D: "Si se incrementa la concentración de reactivos, la presión también aumenta." }, a: "A" },
+            { q: "Un informe de laboratorio describe estos pasos: 1. Se preparó una solución de extracto de repollo morado con agua. 2. En cuatro vasos se agregaron 10 mL de jugo de limón, vinagre, bicarbonato de sodio y blanqueador. 3. Se etiquetaron los vasos. 4. Se agregaron 5 mL de extracto de repollo morado a cada muestra y se observaron los cambios. 5. Se registraron las observaciones en una tabla. ¿A cuál parte del informe hace referencia este texto?", o: { A: "A la introducción conceptual.", B: "A los materiales.", C: "Al procedimiento.", D: "A los resultados." }, a: "C" },
+            { q: "En la replicación del ADN, a partir de una hebra se generan réplicas idénticas mediante enzimas específicas: una desenrolla la hebra, otra rompe los puentes de hidrógeno para separar la cadena original, y una tercera complementa las cadenas sencillas. ¿Qué nombre recibe la enzima que rompe los puentes de hidrógeno del ADN?", o: { A: "Helicasa.", B: "ADN polimerasa.", C: "Topoisomerasa.", D: "Cebador." }, a: "A" },
+            { q: "Se organizan sustancias de cocina en dos grupos: Grupo 1 (vinagre, sal, azúcar, leche) y Grupo 2 (naranjilla, aceite, semillas de grano). Las del Grupo 1 se disuelven completamente en agua, mientras que las del Grupo 2 no. ¿Qué propiedad permite diferenciar al grupo 1 del grupo 2?", o: { A: "El color de los del grupo 1 es el mismo.", B: "Todos los del grupo 1 son sólidos y los del grupo 2 líquidos.", C: "Los del grupo 1 se solubilizan en agua y los del grupo 2 no.", D: "El sabor de los del grupo 1 es muy dulce." }, a: "C" },
+            { q: "Se desea determinar cuál de varias frutas tiene mayor contenido de azúcares. Opción 1: escoger una única fruta de cada tipo, medir 1 gramo de cada una y estimar su azúcar. Opción 2: escoger cuatro frutas de cada tipo, estimar el azúcar en cada fruta y promediar los resultados. ¿Cuál opción tiene menor incertidumbre o error experimental?", o: { A: "La opción 1, porque el contenido de azúcar se medirá más rápidamente en una sola fruta.", B: "La opción 2, porque, para poder comparar los resultados, se requiere medir 100 gramos de fruta.", C: "La opción 1, porque tiene en cuenta el efecto de la forma de la fruta sobre el contenido de azúcar.", D: "La opción 2, porque, al realizar repeticiones, se puede estar más seguro de los resultados." }, a: "D" },
+            { q: "En un experimento para determinar qué compuesto aporta más nitrógeno al suelo se comparan: urea (NH2)2CO, nitrato de amonio NH4NO3, guanidina HNC(NH2)2 y amoniaco NH3, calculando el porcentaje de nitrógeno por masa de cada sustancia. El amoniaco resulta tener 82 g de N por cada 100 g de sustancia, el mayor de los cuatro. ¿Qué sustancia presenta la mayor proporción de nitrógeno?", o: { A: "La urea porque presenta 2 moles de N por cada molécula.", B: "La guanidina ya que presenta 3 moles de N por cada mol de sustancia.", C: "El nitrato de amonio porque presenta 4 moles de N por cada mol de sustancia.", D: "El amoniaco ya que posee 82 g de N por cada 100 g de sustancia." }, a: "D" },
+            { q: "Durante una clase los estudiantes aprenden sobre el sistema circulatorio humano y el de las plantas. Ambos sistemas están involucrados en el transporte de sustancias, pero difieren en varios aspectos (las plantas no tienen corazón ni vasos sanguíneos propiamente). ¿Cuál característica tienen en común ambos sistemas circulatorios?", o: { A: "Presencia de vasos sanguíneos.", B: "Transporte de nutrientes.", C: "Presencia de corazón como órgano de bombeo.", D: "Distribución de oxígeno a todas las células." }, a: "B" },
+            { q: "Los elementos de un mismo grupo de la tabla periódica tienen comportamiento químico similar. En un fragmento de la tabla aparecen B, C, N, O, F, Ne en el período 2 y Al, Si, P, S, Cl, Ar en el período 3, además de Ga, Ge, As, Se, Br, Kr en el período 4. ¿Cuál conjunto de elementos tiene comportamiento químico similar?", o: { A: "B, P y Br", B: "P, S y Cl", C: "F, S y As", D: "Cl y Br" }, a: "D" },
+            { q: "Aura hizo un estudio en el cual tomó las siguientes características del suelo de su región: el tamaño de las partículas, la humedad, la pendiente, la vegetación, y también midió la velocidad del viento. ¿Qué pregunta de investigación motivó el estudio de Aura?", o: { A: "¿Qué tamaño tiene la vegetación que crece en el suelo de la región?", B: "¿Cuál es el tamaño del área del suelo de la región?", C: "¿Qué factores determinan la erosión del suelo de la región?", D: "¿Cuáles son los contaminantes del suelo de la región?" }, a: "C" },
+            { q: "La agricultura genera problemas ambientales: la mayoría de las prácticas agrícolas aumentan la contaminación de los ecosistemas cercanos con el uso continuo de abonos, fertilizantes, plaguicidas y herbicidas. Una solución planteada es la rotación de cultivo y el uso de abono orgánico. ¿Por qué esta práctica representa una solución a estos problemas?", o: { A: "Porque las plagas recuperan su hábitat rápidamente y se obtiene una mejor cosecha.", B: "Porque se evita el uso de químicos obteniendo una cosecha más sana y se reduce la proliferación de plagas asociadas al monocultivo.", C: "Porque se obtiene el mismo rubro en cada cosecha y el abono orgánico es más barato.", D: "Porque se necesita una mayor cantidad de abono orgánico y se obtiene una baja productividad." }, a: "B" },
+            { q: "En un laboratorio de química se colocaron compuestos en dos grupos. Grupo 1: hidróxido de sodio (NaOH), óxido de calcio (CaO), agua (H2O), amoniaco (NH3). Grupo 2: ácido clorhídrico (HCl), agua (H2O), aspirina (C9H8O4), ácido acético (C2H4O2). ¿Qué criterio se utilizó para agrupar los compuestos?", o: { A: "El tipo de enlaces que poseen.", B: "Su naturaleza de ácidos y de bases.", C: "Que son binarios y terciarios.", D: "Que son naturales y artificiales." }, a: "B" },
+            { q: "En una tabla se presentan los porcentajes de las emisiones de CO2 del 2012 y 2022: EEUU pasó de 15.29% a 13.59%, China de 27.94% a 30.30%, la UE-27 de 9.31% a 7.43%, India de 5.59% a 7.62% y el resto del mundo de 41.86% a 41.06%. ¿Qué afirmación es consistente con estos datos?", o: { A: "La participación de China en las emisiones globales aumentó entre 2012 y 2022.", B: "La participación de EEUU en las emisiones globales aumentó entre 2012 y 2022.", C: "La participación de la UE-27 se mantuvo exactamente igual entre 2012 y 2022.", D: "India redujo su participación en las emisiones globales entre 2012 y 2022." }, a: "A" }
+        ];
+
+        // ---------- LÓGICA DEL EXAMEN ----------
+        let exam = {
+            questions: [],
+            current: 0,
+            answers: {},
+            timeLeft: 7200, // 2 horas
+            timerId: null,
+            finished: false
+        };
+
+        function shuffle(arr) {
+            const a = arr.slice();
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        function pickQuestions() {
+            const pool = shuffle(BANK);
+            const n = Math.min(42, pool.length);
+            exam.questions = pool.slice(0, n);
+        }
+
+        function fmtTime(s) {
+            const h = Math.floor(s / 3600);
+            const m = Math.floor((s % 3600) / 60);
+            const sec = s % 60;
+            return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(sec).padStart(2, '0');
+        }
+
+        function startExam() {
+            pickQuestions();
+            exam.current = 0;
+            exam.answers = {};
+            exam.timeLeft = 7200;
+            exam.finished = false;
+            renderQuestion();
+            if (exam.timerId) clearInterval(exam.timerId);
+            exam.timerId = setInterval(tick, 1000);
+        }
+
+        function tick() {
+            exam.timeLeft--;
+            const el = document.getElementById('timerDisplay');
+            if (el) {
+                el.textContent = fmtTime(exam.timeLeft);
+                if (exam.timeLeft <= 300) { el.classList.add('low'); }
+            }
+            if (exam.timeLeft <= 0) {
+                clearInterval(exam.timerId);
+                finishExam();
+            }
+        }
+
+        function selectOption(letter) {
+            exam.answers[exam.current] = letter;
+            renderQuestion();
+        }
+
+        function goTo(idx) {
+            exam.current = idx;
+            renderQuestion();
+        }
+
+        function nextQuestion() {
+            if (exam.current < exam.questions.length - 1) {
+                exam.current++;
+                renderQuestion();
+            }
+        }
+
+        function prevQuestion() {
+            if (exam.current > 0) {
+                exam.current--;
+                renderQuestion();
+            }
+        }
+
+        function renderQuestion() {
+            const app = document.getElementById('app');
+            const q = exam.questions[exam.current];
+            const selected = exam.answers[exam.current];
+
+            let optsHtml = '';
+            ['A', 'B', 'C', 'D'].forEach(letter => {
+                const cls = selected === letter ? 'opt selected' : 'opt';
+                optsHtml += `<button class="${cls}" onclick="selectOption('${letter}')">${letter}. ${q.o[letter]}</button>`;
+            });
+
+            let idxHtml = '';
+            exam.questions.forEach((_, i) => {
+                const cls = exam.answers[i] !== undefined ? 'answered' : '';
+                idxHtml += `<span class="${cls}" onclick="goTo(${i})">${i + 1}</span>`;
+            });
+
+            const isLast = exam.current === exam.questions.length - 1;
+            const navBtn = isLast ?
+                `<button class="nav" onclick="confirmFinish()">Finalizar examen</button>` :
+                `<button class="nav" onclick="nextQuestion()">Siguiente</button>`;
+
+            app.innerHTML = `
+                <div class="bar">
+                    <div class="timer" id="timerDisplay">${fmtTime(exam.timeLeft)}</div>
+                    <div class="progress">Pregunta ${exam.current + 1} de ${exam.questions.length}</div>
+                </div>
+                <div class="card">
+                    <div class="qtext">${q.q}</div>
+                    ${optsHtml}
+                    <div class="navrow">
+                        <button class="nav secondary" onclick="prevQuestion()" ${exam.current === 0 ? 'disabled' : ''}>Anterior</button>
+                        ${navBtn}
+                    </div>
+                </div>
+                <div class="qindex">${idxHtml}</div>
+            `;
+        }
+
+        function confirmFinish() {
+            const unanswered = exam.questions.length - Object.keys(exam.answers).length;
+            if (unanswered > 0) {
+                if (!confirm(`Tienes ${unanswered} pregunta(s) sin responder. ¿Deseas finalizar el examen de todas formas?`)) {
+                    return;
+                }
+            }
+            clearInterval(exam.timerId);
+            finishExam();
+        }
+
+        function finishExam() {
+            exam.finished = true;
+            let correct = 0;
+            exam.questions.forEach((q, i) => {
+                if (exam.answers[i] === q.a) { correct++; }
+            });
+            const base100 = (correct / exam.questions.length) * 100;
+            const base30 = (base100 / 100) * 30;
+            renderResults(correct, base100, base30);
+        }
+
+        function renderResults(correct, base100, base30) {
+            const app = document.getElementById('app');
+            let reviewHtml = '';
+            exam.questions.forEach((q, i) => {
+                const userAns = exam.answers[i];
+                const isCorrect = userAns === q.a;
+                if (!isCorrect) {
+                    let optsHtml = '';
+                    ['A', 'B', 'C', 'D'].forEach(letter => {
+                        let cls = 'opt';
+                        if (letter === q.a) cls += ' correct';
+                        else if (letter === userAns) cls += ' incorrect';
+                        optsHtml += `<div class="${cls}">${letter}. ${q.o[letter]}</div>`;
+                    });
+                    reviewHtml += `
+                        <div class="reviewItem">
+                            <span class="tag bad">Pregunta ${i+1} - Incorrecta</span>
+                            <div class="qtext">${q.q}</div>
+                            ${optsHtml}
+                        </div>
+                    `;
+                }
+            });
+
+            app.innerHTML = `
+                <div class="score">
+                    <div class="sub">Resultado final</div>
+                    <div class="num">${base30.toFixed(1)} / 30</div>
+                    <div class="sub">Equivalente a ${base100.toFixed(1)} / 100 (${correct} de ${exam.questions.length} correctas)</div>
+                    <button class="bigbtn" onclick="startExam()">Repetir examen</button>
+                </div>
+                ${reviewHtml ? `<div style="margin-top: 32px;"><h2 style="font-size:20px;font-weight:600;margin-bottom:12px;color:#0f172a;">Revisión de preguntas incorrectas</h2>${reviewHtml}</div>` : '<div style="margin-top:32px;text-align:center;font-size:18px;color:#15803d;">¡Excelente! Respondiste todo correctamente.</div>'}
+            `;
+        }
+
+        function renderStart() {
+            const app = document.getElementById('app');
+            app.innerHTML = `
+                <div class="start">
+                    <h1>Examen de práctica</h1>
+                    <div class="subtitle">Ciencias de la Naturaleza</div>
+                    <p>42 preguntas seleccionadas aleatoriamente en base a los 3 cuadernillos, sin repetirse.</p>
+                    <p>Tiempo límite: <strong>2 horas</strong>.</p>
+                    <p>Al finalizar, tu nota se calculará sobre 30 puntos y podrás revisar las preguntas que falles.</p>
+                    <button class="bigbtn" onclick="startExam()">Comenzar examen</button>
+                </div>
+            `;
+        }
+
+        renderStart();
+    </script>
+</body>
+</html>
