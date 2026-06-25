@@ -20,6 +20,36 @@
             padding: 0;
             line-height: 1.5;
             -webkit-font-smoothing: antialiased;
+            padding-top: 56px; /* altura del header fijo */
+        }
+
+        /* Header fijo con "Hecho por Abdias" */
+        .site-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 56px;
+            background: #ffffff;
+            border-bottom: 1px solid #e9edf4;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 100;
+            backdrop-filter: blur(4px);
+            background: rgba(255, 255, 255, 0.92);
+        }
+
+        .site-header .brand {
+            font-weight: 600;
+            font-size: 18px;
+            color: #0f172a;
+            letter-spacing: 0.3px;
+        }
+
+        .site-header .brand span {
+            color: #3b82f6;
         }
 
         .wrap {
@@ -28,10 +58,10 @@
             padding: 20px 16px 40px;
         }
 
-        /* Barra superior (sticky) */
+        /* Barra superior (sticky) – ahora con top ajustado para que no se solape con el header */
         .bar {
             position: sticky;
-            top: 0;
+            top: 56px; /* altura del header */
             background: #ffffff;
             padding: 14px 20px;
             display: flex;
@@ -42,6 +72,7 @@
             z-index: 10;
             backdrop-filter: blur(4px);
             background: rgba(255, 255, 255, 0.92);
+            margin-top: -1px; /* para evitar doble borde */
         }
 
         .timer {
@@ -343,7 +374,18 @@
 
         /* Responsive */
         @media (max-width: 640px) {
+            .site-header {
+                height: 48px;
+                padding: 0 16px;
+            }
+            .site-header .brand {
+                font-size: 16px;
+            }
+            body {
+                padding-top: 48px;
+            }
             .bar {
+                top: 48px;
                 padding: 12px 16px;
                 flex-wrap: wrap;
                 gap: 6px;
@@ -453,12 +495,174 @@
         html {
             scroll-behavior: smooth;
         }
+
+        /* ---------- Estilos del overlay de aclaración ---------- */
+        #disclaimer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.55);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            padding: 20px;
+            backdrop-filter: blur(3px);
+            transition: opacity 0.25s ease;
+        }
+
+        #disclaimer-overlay.hidden {
+            display: none;
+        }
+
+        .disclaimer-box {
+            background: #ffffff;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 100%;
+            padding: 32px 28px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .disclaimer-box h2 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 12px;
+        }
+
+        .disclaimer-box p {
+            font-size: 16px;
+            color: #334155;
+            margin-bottom: 14px;
+            line-height: 1.6;
+        }
+
+        .disclaimer-box .att {
+            font-weight: 500;
+            color: #1e293b;
+            margin-top: 8px;
+        }
+
+        .disclaimer-box .actions {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-top: 24px;
+            border-top: 1px solid #e9edf4;
+            padding-top: 20px;
+        }
+
+        .disclaimer-box .actions label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+            color: #475569;
+            cursor: pointer;
+        }
+
+        .disclaimer-box .actions label input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #3b82f6;
+            cursor: pointer;
+        }
+
+        .disclaimer-box .close-btn {
+            background: #3b82f6;
+            color: #fff;
+            border: none;
+            padding: 10px 28px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .disclaimer-box .close-btn:hover {
+            background: #2563eb;
+        }
+
+        @media (max-width: 480px) {
+            .disclaimer-box {
+                padding: 24px 16px;
+            }
+            .disclaimer-box h2 {
+                font-size: 19px;
+            }
+            .disclaimer-box .actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .disclaimer-box .close-btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
     </style>
 </head>
 <body>
+
+    <!-- Header fijo "Hecho por Abdias" -->
+    <header class="site-header">
+        <div class="brand">Hecho por <span>Abdias</span></div>
+    </header>
+
+    <!-- Overlay de aclaración (se muestra según localStorage) -->
+    <div id="disclaimer-overlay">
+        <div class="disclaimer-box">
+            <h2>Aclaración sobre las respuestas del simulador</h2>
+            <p>Este simulador fue elaborado tomando como referencia cuatro cuadernillos de Pruebas Nacionales previamente completados. Las respuestas utilizadas son las que aparecen en esos cuadernillos y no fueron llenadas por mí.</p>
+            <p>El simulador realiza el cálculo de la puntuación de forma correcta. Si alguna respuesta marcada como correcta resulta ser incorrecta, el problema no está en el funcionamiento del programa, sino en el cuadernillo utilizado como base.</p>
+            <p class="att">Att.: El desarrollador</p>
+            <div class="actions">
+                <label>
+                    <input type="checkbox" id="dontShowAgain"> No volver a mostrar
+                </label>
+                <button class="close-btn" id="closeDisclaimer">Entendido</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenedor principal de la aplicación -->
     <div class="wrap" id="app"></div>
 
     <script>
+        // ---------- MANEJO DEL OVERLAY DE ACLARACIÓN ----------
+        (function() {
+            const overlay = document.getElementById('disclaimer-overlay');
+            const closeBtn = document.getElementById('closeDisclaimer');
+            const dontShowAgain = document.getElementById('dontShowAgain');
+
+            // Verificar si ya se ocultó permanentemente
+            if (localStorage.getItem('hideDisclaimer') === 'true') {
+                overlay.classList.add('hidden');
+            }
+
+            function closeOverlay() {
+                if (dontShowAgain.checked) {
+                    localStorage.setItem('hideDisclaimer', 'true');
+                }
+                overlay.classList.add('hidden');
+            }
+
+            closeBtn.addEventListener('click', closeOverlay);
+            // Cerrar al hacer clic fuera del cuadro (opcional)
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) {
+                    closeOverlay();
+                }
+            });
+        })();
+
         // ---------- DATOS DEL BANCO DE PREGUNTAS ----------
         const BANK = [
             { q: "La primera parte del proceso de digestión se produce en la boca. Allí, los dientes y muelas trituran los alimentos, mientras que las enzimas de la saliva ayudan a desintegrar los alimentos en sustancias más simples. La reacción general que describe este proceso es: Almidón + Amilasa -> Maltosa. De acuerdo con la reacción anterior, ¿qué función cumple la amilasa en dicha reacción?", o: { A: "La amilasa es un producto de la reacción de los carbohidratos complejos como los almidones.", B: "La amilasa es producida por los factores mecánicos de los dientes y las muelas.", C: "La amilasa acelera las reacciones químicas y facilita la degradación de sustancias complejas.", D: "La amilasa actúa sobre los carbohidratos simples para formar carbohidratos complejos." }, a: "C" },
@@ -702,7 +906,7 @@
                 <div class="start">
                     <h1>Examen de práctica</h1>
                     <div class="subtitle">Ciencias de la Naturaleza</div>
-                    <p>42 preguntas seleccionadas aleatoriamente en base a los 3 cuadernillos, sin repetirse.</p>
+                    <p>42 preguntas seleccionadas aleatoriamente en base a los 4 cuadernillos, sin repetirse.</p>
                     <p>Tiempo límite: <strong>2 horas</strong>.</p>
                     <p>Al finalizar, tu nota se calculará sobre 30 puntos y podrás revisar las preguntas que falles.</p>
                     <button class="bigbtn" onclick="startExam()">Comenzar examen</button>
@@ -710,6 +914,7 @@
             `;
         }
 
+        // Iniciar la aplicación mostrando la pantalla de inicio
         renderStart();
     </script>
 </body>
